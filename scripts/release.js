@@ -22,7 +22,7 @@ console.log({ gitTag, repoName, githubRef, githubEventName });
 
 const isReleaseCommit = TEST_BUILD || gitTag && repoName === 'UltimateHackingKeyboard/agent';
 
-if (!isReleaseCommit) {
+if (true || !isReleaseCommit) {
     console.log('It is not a release task. Skipping publish.');
     process.exit(0)
 }
