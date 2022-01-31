@@ -14,13 +14,13 @@ if (!process.env.CI && !TEST_BUILD) {
 }
 
 const githubRef = process.env.GITHUB_REF;
-const gitTag = getGithubTag();
+const gitTag = "pub";
 const githubEventName = process.env.GITHUB_EVENT_NAME;
 const repoName = process.env.GITHUB_REPOSITORY;
 
 console.log({ gitTag, repoName, githubRef, githubEventName });
 
-const isReleaseCommit = TEST_BUILD || gitTag && repoName === 'UltimateHackingKeyboard/agent';
+const isReleaseCommit = TEST_BUILD || gitTag;
 
 if (!isReleaseCommit) {
     console.log('It is not a release task. Skipping publish.');
@@ -57,14 +57,6 @@ if (process.platform === 'darwin') {
     process.exit(1);
 }
 
-if (process.platform === 'darwin' && process.env.CI) {
-    const encryptedFile = path.join(__dirname, './certs/mac-cert.p12.enc');
-    const decryptedFile = path.join(__dirname, './certs/mac-cert.p12');
-    exec(`openssl aes-256-cbc -K $CERT_KEY -iv $CERT_IV -in ${encryptedFile} -out ${decryptedFile} -d`);
-} else if (process.platform === 'win32') {
-    // decrypt windows certificate
-    exec('openssl aes-256-cbc -K %CERT_KEY% -iv %CERT_IV% -in scripts/certs/windows-cert.p12.enc -out scripts/certs/windows-cert.p12 -d')
-}
 
 if (TEST_BUILD || gitTag) {
     const rootJson = require('../package.json');
@@ -85,20 +77,8 @@ if (TEST_BUILD || gitTag) {
             },
             appId: 'com.ultimategadgetlabs.agent',
             productName: 'UHK Agent',
-            mac: {
-                category: 'public.app-category.utilities',
-                extraResources,
-                identity: 'CMXCBCFHDG',
-                cscLink: path.join(__dirname, 'certs/mac-cert.p12'),
-                hardenedRuntime: true,
-                gatekeeperAssess: false,
-                entitlements: path.join(__dirname, 'entitlements.mac.plist'),
-                entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist')
-            },
             win: {
-                extraResources,
-                publisherName: 'Ultimate Gadget Laboratories Kft.',
-                certificateFile: path.join(__dirname, 'certs/windows-cert.p12')
+                extraResources
             },
             linux: {
                 extraResources
